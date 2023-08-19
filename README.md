@@ -46,9 +46,11 @@ Signal inverter circuit
 
 ![Inverter_Sch](https://github.com/blopa1961/SBUS/blob/main/Images/Inverter_Sch.jpg)
 
+
 PCB for 5V Inverter
 
 ![Inverter5_PCB](https://github.com/blopa1961/SBUS/blob/main/Images/Inverter5_PCB.jpg)
+
 
 PCB for 5V to 3.3V level shifter inverter
 
