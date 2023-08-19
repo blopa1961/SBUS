@@ -1,6 +1,8 @@
 # SBUS to PPM and PWM decoder using Arduino Interrupts
 This project is not a library, it’s a set of programs used to decode Futaba’s Serial Bus (SBUS) protocol and output the received values via a Serial port, a PPM stream (for use with flight simulator USB dongles) and/or multiple PWM servo outputs. The input is always an inverted pulse train which must be connected to a hardware serial port in the target MCU.
 
+![SBUS2PPM2PWM12_Nano](https://github.com/blopa1961/SBUS/assets/92994525/fbebee49-2a8c-43fd-b1f1-71811521de7b)
+
 ## Disclaimer:
 No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, ANY WARRANTY THAT THE SUBJECT SOFTWARE WILL CONFORM TO SPECIFICATIONS, ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR FREEDOM FROM INFRINGEMENT, ANY WARRANTY THAT THE SUBJECT SOFTWARE WILL BE ERROR FREE, OR ANY WARRANTY THAT DOCUMENTATION, IF PROVIDED, WILL CONFORM TO THE SUBJECT SOFTWARE.
 
@@ -14,8 +16,6 @@ The project is also targeted at Arduino developers who would like to learn and u
 ## Description:
 These interrupt routines are different for every MCU platform and sometimes require low level access to MCU registers (i.e. ATMega328P and ATMega32U4 which share the same register structure). Sometimes, interrupts are directly supported by the board manager (but not clearly documented), but overall, the code is highly incompatible between different MCU architectures.
 To make the code clear I decided to create an individual sketch for each MCU architecture and refrained from using conditional ifs to compile a single sketch with multiple MCU architectures and different interrupt structures. You will find a list of target MCUs in the header of each INO file. Unless explicitly mentioned, no third party libs are used.
-
-![SBUS2PPM2PWM12_Nano](https://github.com/blopa1961/SBUS/assets/92994525/fbebee49-2a8c-43fd-b1f1-71811521de7b)
 
 ## SBUS to PPM:
 
