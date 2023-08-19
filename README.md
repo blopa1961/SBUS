@@ -1,7 +1,7 @@
 # SBUS to PPM and PWM decoder using Arduino Interrupts
 This project is not a library, it’s a set of programs used to decode Futaba’s Serial Bus (SBUS) protocol and output the received values via a Serial port, a PPM stream (for use with flight simulator USB dongles) and/or multiple PWM servo outputs. The input is always an inverted pulse train which must be connected to a hardware serial port in the target MCU.
 
-![SBUS2PPM2PWM12_Nano](https://github.com/blopa1961/SBUS/raw/master/Images/SBUS2PPM2PWM12_Nano.jpg)
+![SBUS2PPM2PWM12_Nano](https://github.com/blopa1961/SBUS/blob/main/Images/SBUS2PPM2PWM12_Nano.jpg)
 
 ## Disclaimer:
 No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, ANY WARRANTY THAT THE SUBJECT SOFTWARE WILL CONFORM TO SPECIFICATIONS, ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR FREEDOM FROM INFRINGEMENT, ANY WARRANTY THAT THE SUBJECT SOFTWARE WILL BE ERROR FREE, OR ANY WARRANTY THAT DOCUMENTATION, IF PROVIDED, WILL CONFORM TO THE SUBJECT SOFTWARE.
@@ -41,15 +41,15 @@ Warning: any sketches driving servos require a suitable external power supply. D
 •	SBUS2PPM8PWM12INT: decodes SBUS, outputs a flawless 8 channel PPM and up to 12 PWM servo signals. Works with Nano or UNO (12 servos + 1 PPM) and Pro Micro or Leonardo (9 servos + 1 PPM). PPM signal is interrupt driven, PWM servo signals are output concurrently for all servos during the PPM train separation pause.
 
 ## Required signal inverter:
-![Inverter_Sch](https://github.com/blopa1961/SBUS/raw/master/Images/Inverter_Sch.jpg)
+![Inverter_Sch](https://github.com/blopa1961/SBUS/blob/main/Images/Inverter_Sch.jpg)
 
 Signal inverter circuit
 
-![Inverter5_PCB](https://github.com/blopa1961/SBUS/raw/master/Images/Inverter5_PCB.jpg)
+![Inverter5_PCB](https://github.com/blopa1961/SBUS/blob/main/Images/Inverter5_PCB.jpg)
 
 PCB for 5V Inverter
 
-![Inverter3_PCB](https://github.com/blopa1961/SBUS/raw/master/Images/Inverter3_PCB.jpg)
+![Inverter3_PCB](https://github.com/blopa1961/SBUS/blob/main/Images/Inverter3_PCB.jpg)
 
 PCB for 5V to 3.3V level shifter inverter
 
