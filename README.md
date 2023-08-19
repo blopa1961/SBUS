@@ -41,17 +41,15 @@ Warning: any sketches driving servos require a suitable external power supply. D
 •	SBUS2PPM8PWM12INT: decodes SBUS, outputs a flawless 8 channel PPM and up to 12 PWM servo signals. Works with Nano or UNO (12 servos + 1 PPM) and Pro Micro or Leonardo (9 servos + 1 PPM). PPM signal is interrupt driven, PWM servo signals are output concurrently for all servos during the PPM train separation pause.
 
 ## Required signal inverter:
-![Inverter_Sch](https://github.com/blopa1961/SBUS/blob/main/Images/Inverter_Sch.jpg)
 
 Signal inverter circuit
-
-![Inverter5_PCB](https://github.com/blopa1961/SBUS/blob/main/Images/Inverter5_PCB.jpg)
+![Inverter_Sch](https://github.com/blopa1961/SBUS/blob/main/Images/Inverter_Sch.jpg)
 
 PCB for 5V Inverter
-
-![Inverter3_PCB](https://github.com/blopa1961/SBUS/blob/main/Images/Inverter3_PCB.jpg)
+![Inverter5_PCB](https://github.com/blopa1961/SBUS/blob/main/Images/Inverter5_PCB.jpg)
 
 PCB for 5V to 3.3V level shifter inverter
+![Inverter3_PCB](https://github.com/blopa1961/SBUS/blob/main/Images/Inverter3_PCB.jpg)
 
 ## Further reading:
 I will soon be uploading a full description of this project, stay tuned.
