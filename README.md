@@ -43,12 +43,15 @@ Warning: any sketches driving servos require a suitable external power supply. D
 ## Required signal inverter:
 
 Signal inverter circuit
+
 ![Inverter_Sch](https://github.com/blopa1961/SBUS/blob/main/Images/Inverter_Sch.jpg)
 
 PCB for 5V Inverter
+
 ![Inverter5_PCB](https://github.com/blopa1961/SBUS/blob/main/Images/Inverter5_PCB.jpg)
 
 PCB for 5V to 3.3V level shifter inverter
+
 ![Inverter3_PCB](https://github.com/blopa1961/SBUS/blob/main/Images/Inverter3_PCB.jpg)
 
 ## Further reading:
