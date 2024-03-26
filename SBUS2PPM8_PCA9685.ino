@@ -6,11 +6,13 @@
   @brief      SBUS to PPM protocol converter and PCA9685 Servo driver
   @author     Pablo Montoreano
   @copyright  2023 Pablo Montoreano
+  @version    1.1 - 05/oct/23 - bug fix (0x0F is a valid SBUS value)
 
   3rd party library: Adafruit_PWM_Servo_Driver_Library (3.0.0) - PCA9685 library
 
   for Arduino Pro Micro (ATMega32U4) or Arduino Leonardo (I needed at least 2 serial ports for debugging)
   added support for Arduino Nano or UNO (no debugging possible)
+  Compile as Arduino Leonardo if using a Pro Micro
 *********************************************************/
 
 // define PPM output, LED and config ports in constants below
@@ -66,6 +68,7 @@ static bool lock1;  // use pulse train 2 when 1 locked
 static bool resol1024;  // low resolution. lose a bit for a steadier output using 10 bits instead of 11
 static unsigned long lastReception;  // millis of last reception
 static unsigned int i; // general counter
+static bool newFrame;
 
 // Timer1 interrupt
 ISR (TIMER1_COMPA_vect) {
@@ -151,7 +154,13 @@ bool getFrame() {
   while (Serial.available()) {
     sbusByte= Serial.read();
 #endif
-    if (sbusByte == 0x0F) byteNmbr= 0;  // if this byte is SBUS start byte start counting bytes
+// Bug fix: 0x0F is a valid value in the SBUS stream
+// so we use a flag to detect the end of a packet (0) before enabling the capture of next frame
+    if ((sbusByte == 0x0F) && newFrame) { // if this byte is SBUS start byte start counting bytes
+      newFrame= false;
+      byteNmbr= 0;
+    }
+    else if (sbusByte == 0) newFrame= true; // end of frame, enable start of next frame (to distinguish from 0x0F channel values)
     if (byteNmbr <= 24) { // 25 bytes total
       frame[byteNmbr]= sbusByte;  // save a byte
       byteNmbr++;
@@ -177,14 +186,15 @@ void setup() {
   pwm.setOscillatorFrequency(27000000);
   pwm.setPWMFreq(50);  // Analog servos updated @59 Hz (about 20mS between pulses)
 // end PCA9685
-#ifdef __AVR_ATmega32U4__
+#ifdef __AVR_ATmega32U4__  // Arduino Pro Micro
   Serial1.begin(SBUSbaudRate, SERIAL_8E2);
 #endif
-#ifdef __AVR_ATmega328P__ // Arduino nano pin definitions
+#ifdef __AVR_ATmega328P__ // Arduino Nano
   Serial.begin(SBUSbaudRate, SERIAL_8E2);
 #endif
   byteNmbr= 255; // invalidate SBUS byte number
   lastReception= 0;
+  newFrame= false;
   pTrain= 0;  // idle
   lock1= true;
   initTimer1(); // initialize timer registers

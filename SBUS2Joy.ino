@@ -6,6 +6,7 @@
   @brief      SBUS to PC Joystick interface
   @author     Pablo Montoreano
   @copyright  2023 Pablo Montoreano
+  @version    1.1 - 05/oct/23 - bug fix (0x0F is a valid SBUS value)
 
   3rd party library: Joystick (2.1.1) by Matthew Heironimus
 
@@ -25,6 +26,7 @@ static byte frame[25];  // 25 bytes per frame
 static unsigned int channel[17]; // 16 channels in SBUS stream + channels 17, 18 & failsafe in channel[0]
 static unsigned int lastReported[9];  // 8 channels plus array[0]
 static unsigned int i; // a counter
+static bool newFrame;
 
 #include <Joystick.h>
 
@@ -67,7 +69,13 @@ int chanBit;  // current channel bit being proccessed
 bool getFrame() {
   while (Serial1.available()) {
     sbusByte= Serial1.read();
-    if (sbusByte == 0x0F) byteNmbr= 0;
+// Bug fix: 0x0F is a valid value in the SBUS stream
+// so we use a flag to detect the end of a packet (0) before enabling the capture of next frame
+    if ((sbusByte == 0x0F) && newFrame) { // if this byte is SBUS start byte start counting bytes
+      newFrame= false;
+      byteNmbr= 0;
+    }
+    else if (sbusByte == 0) newFrame= true; // end of frame, enable start of next frame (to distinguish from 0x0F channel values)
     if (byteNmbr <= 24) {
       frame[byteNmbr]= sbusByte;
       byteNmbr++;
@@ -89,6 +97,7 @@ void setup() {
 //  Joystick.setThrottleRange(0, 2047);
   for (i= 1; i <= maxChan; i++) lastReported[i]= 0;
   lastReception= 0;
+  newFrame= false;
   Joystick.begin();
 }
 

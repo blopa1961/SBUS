@@ -1,4 +1,7 @@
 # SBUS to PPM and PWM decoder using Arduino Interrupts
+
+The full project is [HERE](https://www.instructables.com/SBUS-to-PPM-and-PWM-Decoder-Using-Arduino-Timer-In/)
+
 This project is not a library, it’s a set of programs used to decode Futaba’s Serial Bus (SBUS) protocol and output the received values via a Serial port, a PPM stream (for use with flight simulator USB dongles) and/or multiple PWM servo outputs. The input is always an inverted pulse train which must be connected to a hardware serial port in the target MCU.
 
 ![SBUS2PPM2PWM12_Nano](https://github.com/blopa1961/SBUS/blob/main/Images/SBUS2PPM2PWM12_Nano.jpg)
@@ -9,9 +12,8 @@ No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY OF AN
 In other words: use at YOUR OWN RISK, if you crash a 50000 dollar R/C Jet because an SBUS decoder fails or stops responding you are on your own. As a matter of fact, if you have a 50000 dollar R/C jet (or a 100 dollar balsa R/C plane for that matter) I suggest you buy a commercial SBUS decoder when needed.
 
 ## Target audience:
-The project is targeted at radio control hobbyists who have knowledge of Arduino and its IDE. It’s not meant as a way to learn Arduino nor to teach how to setup a programming environment for the target MCU (like the ST-Link V2 necessary to program the bluepill MCU). I will assume you know all this and have some knowledge of electronics (resistors, transistors, Arduinos, etc.). You will need to build a signal inverter with a single NPN transistor and a couple of resistors. The inverter will also work as a level shifter from 5V to the 3.3V required by 3.3V devices like the ESP8266 (see both versions below).
-
-The project is also targeted at Arduino developers who would like to learn and understand how to use bare bones hardware interrupts for various Arduino processors, namely Pro Micro (ATMega32U4), Nano (ATMega328P), STM32F103 (bluepill) and ESP8266 (ESP01, ESP12, nodeMCU, Wemos D1 mini, etc) by analyzing the source code which does not use third party libraries nor external calls.
+The project is targeted at Arduino developers who would like to learn and understand how to use bare bones hardware timer interrupts for various Arduino processors, namely Pro Micro (ATMega32U4), Nano (ATMega328P), STM32F103 (bluepill) and ESP8266 (ESP01, ESP12, nodeMCU, Wemos D1 mini, etc) by analyzing the source code which does not use third party libraries nor external calls. The beauty of this project is that it has no display, no buttons to debounce, no external hardware. It’s a simple signal processor nicely fitted to learn interrupts.
+The project is also targeted at radio control hobbyists who have knowledge of Arduino and its IDE. It’s not meant as a way to learn Arduino nor to teach how to setup a programming environment for the target MCU (like the ST-Link V2 necessary to program the bluepill MCU). I will assume you know all this and have some knowledge of electronics (resistors, transistors, Arduinos, etc.)
 
 ## Description:
 These interrupt routines are different for every MCU platform and sometimes require low level access to MCU registers (i.e. ATMega328P and ATMega32U4 which share the same register structure). Sometimes, interrupts are directly supported by the board manager (but not clearly documented), but overall, the code is highly incompatible between different MCU architectures.
@@ -55,6 +57,3 @@ PCB for 5V Inverter
 PCB for 5V to 3.3V level shifter inverter
 
 ![Inverter3_PCB](https://github.com/blopa1961/SBUS/blob/main/Images/Inverter3_PCB.jpg)
-
-## Further reading:
-I will soon be uploading a full description of this project, stay tuned.

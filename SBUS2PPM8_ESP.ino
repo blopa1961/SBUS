@@ -6,11 +6,15 @@
   @brief      SBUS to PPM protocol converter
   @author     Pablo Montoreano
   @copyright  2023 Pablo Montoreano
+  @version    1.1 - 05/oct/23 - bug fix (0x0F is a valid SBUS value)
 
   no 3rd party libraries used
 
   for ESP01, nodeMCU, Wemos D1 mini or any ESP8266 (no debugging possible)
-  ESP8266 Boards Manager version 3.1.2 compiles OK with default MMU (32K cache + 32Kb IRAM)
+
+  Select "nodeMcu 1.0" for 4Mb boards, "Generic ESP8266 Module" for 1Mb boards
+  Set MMU to "32K cache + 32Kb IRAM" if using ESP8266 Boards Manager version 3.1.2
+  Set flash size as you like, no data saved
 *********************************************************/
 
 // PPM signal is idle high, low 0.5 ms (start), 0.400 to 1.600 milliseconds channel pulse, 0.5 ms channel separation
@@ -41,6 +45,7 @@ static bool lock1;  // use pulse train 2 when 1 locked
 static bool resol1024;  // low resolution. lose a bit for a steadier output using 10 bits instead of 11
 static unsigned long lastReception;  // millis of last reception
 static unsigned int i; // general counter
+static bool newFrame;
 
 // Timer1 interrupt
 // default MMU (32K cache + 32Kb IRAM) will work ok
@@ -98,7 +103,13 @@ int chanBit;  // current channel bit being proccessed
 bool getFrame() {
   while (Serial.available()) {
     sbusByte= Serial.read();
-    if (sbusByte == 0x0F) byteNmbr= 0;  // if this byte is SBUS start byte start counting bytes
+// Bug fix: 0x0F is a valid value in the SBUS stream
+// so we use a flag to detect the end of a packet (0) before enabling the capture of next frame
+    if ((sbusByte == 0x0F) && newFrame) { // if this byte is SBUS start byte start counting bytes
+      newFrame= false;
+      byteNmbr= 0;
+    }
+    else if (sbusByte == 0) newFrame= true; // end of frame, enable start of next frame (to distinguish from 0x0F channel values)
     if (byteNmbr <= 24) { // 25 bytes total
       frame[byteNmbr]= sbusByte;  // save a byte
       byteNmbr++;
@@ -125,6 +136,7 @@ void setup() {
   pinMode(portCfg, INPUT_PULLUP);
   byteNmbr= 255; // invalidate SBUS byte number
   lastReception= 0;
+  newFrame= false;
   pTrain= 0;  // idle
   lock1= true;
   timer1_isr_init();

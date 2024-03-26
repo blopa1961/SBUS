@@ -8,6 +8,7 @@
   @brief      SBUS to PPM protocol converter (interrupt driven) and PWM servo driver
   @author     Pablo Montoreano
   @copyright  2023 Pablo Montoreano
+  @version    1.1 - 05/oct/23 - bug fix (0x0F is a valid SBUS value)
 
   This version generates a flawless PPM stream using interrupts with double buffering for PPM data
 
@@ -49,7 +50,7 @@
 #define LEDOFF LOW
 static const unsigned int PPM_out= 14; // PPM output port (A0)
 static const unsigned int portCfg= 16; // resolution configuration (A2), jumper= 10 bits
-static const unsigned int LED_failsafe= 18; // falsafe LED (A4)
+static const unsigned int LED_failsafe= 18; // failsafe LED (A4)
 static const unsigned int LED_lowRes= 19;   // low resolution LED (A5)
 #ifdef __AVR_ATmega32U4__
 static const unsigned int LED_noSignal= 21; // no signal LED (A2)
@@ -86,6 +87,7 @@ static bool gotData, updData;
 static bool failsafeMode;
 static bool noSignalMode;
 static unsigned int i,j; // general counters
+static bool newFrame;
 
 struct pulseArray {
   unsigned int pulseWidth;  // pulse width in uS
@@ -181,7 +183,13 @@ bool getFrame() {
   while (Serial.available()) {
     sbusByte= Serial.read();
 #endif
-    if (sbusByte == 0x0F) byteNmbr= 0;  // if this byte is SBUS start byte start counting bytes
+// Bug fix: 0x0F is a valid value in the SBUS stream
+// so we use a flag to detect the end of a packet (0) before enabling the capture of next frame
+    if ((sbusByte == 0x0F) && newFrame) { // if this byte is SBUS start byte start counting bytes
+      newFrame= false;
+      byteNmbr= 0;
+    }
+    else if (sbusByte == 0) newFrame= true; // end of frame, enable start of next frame (to distinguish from 0x0F channel values)
     if (byteNmbr <= 24) { // 25 bytes total
       frame[byteNmbr]= sbusByte;  // save a byte
       byteNmbr++;
@@ -232,6 +240,7 @@ void setup() {
 #endif
   byteNmbr= 255; // invalidate SBUS byte number
   lastReception= 0;
+  newFrame= false;
   failsafeMode= false;
   noSignalMode= true;
   pTrain= 0;  // idle

@@ -6,11 +6,13 @@
   @brief      SBUS to PPM protocol converter
   @author     Pablo Montoreano
   @copyright  2023 Pablo Montoreano
+  @version    1.1 - 05/oct/23  - bug fix (0x0F is a valid SBUS value)
 
   no 3rd party libraries used
 
   for Arduino Pro Micro (ATMega32U4) or Arduino Leonardo (I needed at least 2 serial ports for debugging)
   added support for Arduino Nano or UNO (no debugging possible)
+  Compile as Arduino Leonardo if using a Pro Micro
 *********************************************************/
 
 // Pro Micro: PPM output in pin 2 (D1). Connect inverted SBUS signal to RX1
@@ -50,6 +52,7 @@ static bool lock1;  // use pulse train 2 when 1 locked
 static bool resol1024;  // low resolution. lose a bit for a steadier output using 10 bits instead of 11
 static unsigned long lastReception;  // millis of last reception
 static unsigned int i; // general counter
+static bool newFrame;
 
 // Timer1 interrupt
 ISR (TIMER1_COMPA_vect) {
@@ -135,7 +138,13 @@ bool getFrame() {
   while (Serial.available()) {
     sbusByte= Serial.read();
 #endif
-    if (sbusByte == 0x0F) byteNmbr= 0;  // if this byte is SBUS start byte start counting bytes
+// Bug fix: 0x0F is a valid value in the SBUS stream
+// so we use a flag to detect the end of a packet (0) before enabling the capture of next frame
+    if ((sbusByte == 0x0F) && newFrame) { // if this byte is SBUS start byte start counting bytes
+      newFrame= false;
+      byteNmbr= 0;
+    }
+    else if (sbusByte == 0) newFrame= true; // end of frame, enable start of next frame (to distinguish from 0x0F channel values)
     if (byteNmbr <= 24) { // 25 bytes total
       frame[byteNmbr]= sbusByte;  // save a byte
       byteNmbr++;
@@ -156,13 +165,14 @@ void setup() {
   digitalWrite(LED_noSignal, LEDOFF);
 #endif
   pinMode(portCfg, INPUT_PULLUP);
-#ifdef __AVR_ATmega32U4__
+#ifdef __AVR_ATmega32U4__ // Arduino Pro Micro
   Serial1.begin(SBUSbaudRate, SERIAL_8E2);
 #endif
-#ifdef __AVR_ATmega328P__ // Arduino nano pin definitions
+#ifdef __AVR_ATmega328P__ // Arduino Nano
   Serial.begin(SBUSbaudRate, SERIAL_8E2);
 #endif
   byteNmbr= 255; // invalidate SBUS byte number
+  newFrame= false;
   lastReception= 0;
   pTrain= 0;  // idle
   lock1= true;
