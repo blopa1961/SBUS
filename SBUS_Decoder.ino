@@ -1,25 +1,28 @@
-// SBUS decoder - (c) 2023 Pablo Montoreano
-
 /*********************************************************
   @file       SBUS_Decoder.ino
   @brief      SBUS protocol decoder
   @author     Pablo Montoreano
-  @copyright  2023 Pablo Montoreano
-  @version    1.1 - 05/oct/23 - bug fix (0x0F is a valid SBUS value)
+  @copyright  2023~2015 Pablo Montoreano
+  @version    1.2 - 10/Mar/25 added ESP32 support
 
   no 3rd party libraries used
 
-  for Arduino Pro Micro (ATMega32U4) or Arduino Leonardo (2 serial ports are required)
-  also works with STM32F103 (BluePill)
-  does not work with Arduino Nano because it has a single serial port
+  for Arduino Pro Micro, Leonardo, STM32F103 (bluepill) or ESP32-WROOM-32 (2 serial ports are required)
+  output to PC @115200 via USB
+
+  Inverter is not needed when using ESP32 (which supports hardware inversion)
 *********************************************************/
 
+// ESP32-WROOM-32: connect SBUS signal directly to RXD2 (GPIO16)
+// select ESP32 Dev Module as target
+
 // Arduino Pro Micro/Leonardo: connect inverted SBUS signal to RX1
+// Select Arduino Leonardo as target
 
 // STM32F103: connect inverted SBUS to pin RXD1 (A10)
 // enable CDC generic serial in Arduino IDE and connect USB to top connector
-
-//  output to PC @115200 via USB
+// Select Bluepill F103C8 as target
+// CH32F103C8T6: Compile with "Generic STM32F1 Series" and select "Bluepill F103CB (or C8 with 128K)"
 
 static unsigned int sbusByte, byteNmbr;
 static byte frame[25];  // 25 bytes per SBUS frame
@@ -51,7 +54,7 @@ int chanBit;  // current channel bit being proccessed
 bool getFrame() {
   while (Serial1.available()) {
     sbusByte= Serial1.read();
-// Bug fix: 0x0F is a valid value in the SBUS stream
+// 0x0F is a valid value in the SBUS stream
 // so we use a flag to detect the end of a packet (0) before enabling the capture of next frame
     if ((sbusByte == 0x0F) && newFrame) { // if this byte is SBUS start byte start counting bytes
       newFrame= false;
@@ -68,10 +71,22 @@ bool getFrame() {
 }
 
 void setup() {
+#ifdef ESP32
+  pinMode(16,INPUT);
+  pinMode(17,OUTPUT);
+  Serial1.begin(100000, SERIAL_8E2, 16, 17, true);  // baud rate, mode, RX pin, TX pin, inversion (TX is not used)
+#else
+  Serial1.begin(100000, SERIAL_8E2);  // these micros require hardware signal inversion
+#endif
   Serial.begin(115200);   // PC port speed
-  Serial1.begin(100000, SERIAL_8E2);  // SBUS baud rate
+  delay(500);
   while (!Serial);  // wait for PC port ready
   Serial.println();
+#ifdef ESP32
+  Serial.println("Running on ESP32");
+#else
+  Serial.println("Running on Pro Micro, Leonardo or STM32");
+#endif  
   Serial.println();
   byteNmbr= 255;  // invalidate current frame byte
   newFrame= false;
